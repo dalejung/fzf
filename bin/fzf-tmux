@@ -159,6 +159,9 @@ for arg in "${args[@]}"; do
   opts="$opts \"$arg\""
 done
 
+current_session=`tmux display-message -p "#{client_session}"`
+opt="$opt -t $current_session"
+
 if [[ -n "$term" ]] || [[ -t 0 ]]; then
   cat <<< "\"$fzf\" $opts > $fifo2; echo \$? > $fifo3 $close" > $argsf
   tmux set-window-option synchronize-panes off \;\
