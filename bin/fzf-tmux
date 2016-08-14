@@ -159,7 +159,27 @@ for arg in "${args[@]}"; do
   opts="$opts \"$arg\""
 done
 
-current_session=`tmux display-message -p "#{client_session}"`
+function xprop_active() {
+  local W
+  W=`xdotool getactivewindow`
+  xprop -id ${W} $@
+}
+
+# This depends on tmux title
+# Mine is:
+# set -g set-titles-string "{#S:#I} #T"
+#
+function tmux_current_session() {
+  if [ -n "$TMUX" ]; then
+    tmux_extract_session_from_wm_name `xprop_active WM_NAME`
+  fi
+}
+
+function tmux_extract_session_from_wm_name() {
+  echo $@ | awk -F '[{:}]' '{print $2}'
+}
+
+current_session=`tmux_current_session`
 opt="$opt -t $current_session"
 
 if [[ -n "$term" ]] || [[ -t 0 ]]; then
